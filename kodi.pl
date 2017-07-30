@@ -31,14 +31,11 @@ use strict;
 use warnings;
 my $version = "0.1";
 
-#my $host = "127.0.0.1";
-#my $port = "8080";
 my $host = "192.168.1.2";
 my $port = "80";
 my $user = "af";
 my $pass = "power";
 
-# don't use 't' and 'z', they are reserved
 my $keymap = {
 	'b'			=> 'GUI.ActivateWindow("window": "tvtimers")',
 	'c'			=> 'Input.ContextMenu',
