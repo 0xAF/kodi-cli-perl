@@ -31,8 +31,8 @@ use strict;
 use warnings;
 my $version = "0.1";
 
-my $host = "192.168.1.2";
-my $port = "80";
+my $host = "192.168.1.4";
+my $port = "8080";
 my $user = "username";
 my $pass = "password";
 
@@ -196,6 +196,7 @@ while (defined (my $key = ReadKey())) {
 
 	kodi($action) if (defined $action and $action ne '');
 }
+print "\n";
 
 sub kodi {
 	my $arg = shift;
@@ -249,7 +250,7 @@ sub debug {
 
 sub get_string {
 	my $prompt = shift || "Enter text to send";
-	printf "\r$prompt (ESC to cancel): ";
+	printf "\r$prompt (ESC to cancel): \e[K";
 	my $text = '';
 	while (my $k = ReadKey(0)) {
 		last if ($k eq "\n"); # enter
