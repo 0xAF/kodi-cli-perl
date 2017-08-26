@@ -27,14 +27,20 @@
 #
 # For more information, please refer to <http://unlicense.org>
 #
+
+# Changelog:
+# v0.1 - Initial release
+# v0.2 - Added support for multiple servers
+
 use strict;
 use warnings;
-my $version = "0.1";
+my $version = "0.2";
 
-my $host = "192.168.1.4";
-my $port = "8080";
-my $user = "username";
-my $pass = "password";
+my %SERVERS = (
+	'bower'		=> { host => '192.168.1.5', port => '8080', user => 'user', pass => 'pass' },
+	'rpi'		=> { host => '192.168.1.4', port => '8080', user => 'user', pass => 'pass' },
+	'mediabox'	=> { host => '192.168.1.3', port => '8080', user => 'user', pass => 'pass' },
+);
 
 my $keymap = {
 	'b'			=> 'GUI.ActivateWindow("window": "tvtimers")',
@@ -93,24 +99,53 @@ my $keymap = {
 use FindBin;
 BEGIN { unshift @INC, "$FindBin::Bin/local/lib/perl5" }
 use Term::ReadKey;
-ReadMode 4;
 END { ReadMode 0; }
 use HTTP::Request;
 use LWP::UserAgent;
 
+my ($host, $port, $user, $pass);
 my $debug = (defined $ARGV[0] and $ARGV[0] eq '-d') ? 1 : 0;
 
 printf qq{Kodi CLI v$version.
 Copyright (C) 2017 Stanislav Lechev <af\@0xAF.org>
 
+};
+
+my $server;
+my $servers_count = scalar(keys %SERVERS);
+die "Error: you must configure your servers.\n" unless ($servers_count > 0);
+if ($servers_count == 1) {
+	$server = (keys %SERVERS)[0];
+} else {
+	if (defined ($ARGV[0]) and defined ($SERVERS{$ARGV[0]})) {
+		$server = $ARGV[0];
+	} else {
+		my $cnt = 1;
+		printf "Servers:\n";
+		printf "  [".$cnt++."] - $_\n" foreach (sort keys %SERVERS);
+		print "Choose server: ";
+		no warnings 'numeric'; # temporarily disable warning for int()
+		no warnings 'uninitialized'; # temporarily disable warning for int()
+		my $ans = int(<STDIN>);
+		print "\n";
+
+		die "\nError: wrong choice.\n" unless ($ans > 0);
+		$server = (sort keys %SERVERS)[$ans-1];
+	}
+}
+die "\nError: no server.\n" unless (defined $server and defined $SERVERS{$server});
+printf "Server: $server\n";
+($host, $port, $user, $pass) = @{ $SERVERS{$server} }{ qw/host port user pass/ };
+
+printf qq{
 Press a key to send to Kodi.
 Press Ctrl-C, Ctrl-D or Ctrl-Q to exit.
 Press [`] to send text.
 Press F1 to see the keymap.
-Press F2 to send RPC command like this:
-Input.ExecuteAction("action": "playpause")
+Press F2 to send RPC command, example: Input.ExecuteAction("action": "playpause")
 
 };
+ReadMode 4;
 
 while (defined (my $key = ReadKey())) {
 	my $k = ord $key;
@@ -139,7 +174,7 @@ while (defined (my $key = ReadKey())) {
 				my $fn = ord ReadKey(-1);
 				if (0) {
 				} elsif ($fn == 0x41) { # F1
-					print "Available keys:\n";
+					print "\nAvailable keys:\n";
 					foreach my $k (sort keys %{$keymap}) {
 						my $kn = $k;
 						$kn = '\t' if ($k eq "\t");
