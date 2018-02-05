@@ -38,8 +38,8 @@ my $version = "0.2";
 
 my %SERVERS = (
 	'bower'		=> { host => '192.168.1.5', port => '8080', user => 'user', pass => 'pass' },
-	'rpi'		=> { host => '192.168.1.4', port => '8080', user => 'user', pass => 'pass' },
-	'mediabox'	=> { host => '192.168.1.3', port => '8080', user => 'user', pass => 'pass' },
+	'rpi'		=> { host => '192.168.1.4', port => '8080', user => 'af', pass => '12345' },
+	'mediabox'	=> { host => '192.168.1.3', port => '8080', user => 'af', pass => '12345' },
 );
 
 my $keymap = {
@@ -286,9 +286,18 @@ sub debug {
 
 sub get_string {
 	my $prompt = shift || "Enter text to send";
-	printf "\r$prompt (ESC to cancel): \e[K";
+	printf "\r$prompt: \e[K";
 	my $text = '';
+
+	ReadMode(1);
+	$text = ReadLine(0);
+	ReadMode(4);
+	$text=~s/[\r\n]+//g;
+	return $text;
+
+=cut
 	while (my $k = ReadKey(0)) {
+		printf "\n\nKEY: [".ord($k)."] - [$k]\n\n";
 		last if ($k eq "\n"); # enter
 		if (ord $k == 0x1B) { # escape and other special chars will cancel text input
 			ReadKey(-1) for (1..5); # flush the rest
@@ -304,6 +313,7 @@ sub get_string {
 	}
 	print "\r Canceled.\e[K\r" if ($text eq '');
 	return $text;
+=cut
 }
 
 # vim: set ts=4 sw=4 ss=4 :
