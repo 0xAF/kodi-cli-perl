@@ -31,10 +31,11 @@
 # Changelog:
 # v0.1 - Initial release
 # v0.2 - Added support for multiple servers
+# v0.3 - Fix text input
 
 use strict;
 use warnings;
-my $version = "0.2";
+my $version = "0.3";
 
 my %SERVERS = (
 	'bower'		=> { host => '192.168.1.5', port => '8080', user => 'user', pass => 'pass' },
