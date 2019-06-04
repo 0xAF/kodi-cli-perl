@@ -41,6 +41,7 @@ my %SERVERS = (
 	'bower'		=> { host => '192.168.1.5', port => '8080', user => 'user', pass => 'pass' },
 	'rpi'		=> { host => '192.168.1.4', port => '8080', user => 'af', pass => '12345' },
 	'mediabox'	=> { host => '192.168.1.3', port => '8080', user => 'af', pass => '12345' },
+	'osmc'		=> { host => '192.168.1.2', port => '8080', user => 'af', pass => '12345' },
 );
 
 my $keymap = {
@@ -49,7 +50,8 @@ my $keymap = {
 	'e'			=> 'GUI.ActivateWindow("window": "tvguide")',
 	'f'			=> 'Input.ExecuteAction("action": "fastforward")',
 	'h'			=> 'GUI.ActivateWindow("window": "tvchannels")',
-	'i'			=> 'Input.ExecuteAction("action": "menu")',
+	#'i'			=> 'Input.ExecuteAction("action": "menu")',
+	'i'			=> 'Input.ExecuteAction("action": "info")',
 	'j'			=> 'GUI.ActivateWindow("window": "radiochannels")',
 	'k'			=> 'GUI.ActivateWindow("window": "tvrecordings")',
 	#'m'			=> 'Input.ExecuteAction("action": "menu")',
@@ -135,6 +137,9 @@ if ($servers_count == 1) {
 	}
 }
 die "\nError: no server.\n" unless (defined $server and defined $SERVERS{$server});
+
+$0="kodi $server";
+
 printf "Server: $server\n";
 ($host, $port, $user, $pass) = @{ $SERVERS{$server} }{ qw/host port user pass/ };
 
